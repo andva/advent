@@ -13,7 +13,7 @@ enum class T {
 };
 
 struct OP {
-  OP(std::string op, std::string n)
+  OP(const std::string& op, const std::string& n)
   {
     if (op == "nop") {
       mOp = T::NOP;
@@ -47,7 +47,6 @@ std::optional<size_t>  run(std::vector<OP> sequence, std::map<size_t, bool>& vis
   if (i > sequence.size()) {
     return acc;
   }
-//  std::cout << "executing" << i << " " << acc << std::endl;
   exec(sequence[i], i, acc);
   if (visited.find(i) != std::end(visited)) {
     return std::nullopt;
@@ -73,16 +72,11 @@ int main() {
     mOperations.emplace_back(OP(op, n));
   }
 
-
-  std::optional<size_t> a;
-
   size_t acc = 0;
   size_t i = 0;
   std::map<size_t, bool> v;
-  a = run(mOperations, v, i, acc);
-  if (!a) {
+  if (!run(mOperations, v, i, acc)) {
     for (auto p : v) {
-//      std::cout << std::endl;
       auto copy = mOperations;
       if (mOperations[p.first].mOp == T::JMP) {
         copy[p.first].mOp = T::NOP;
@@ -90,11 +84,13 @@ int main() {
       else if (mOperations[p.first].mOp == T::NOP) {
         copy[p.first].mOp = T::JMP;
       }
+      else {
+        continue;
+      }
       acc = 0;
       i = 0;
       std::map<size_t, bool> ov;
-      a = run(copy, ov, i, acc);
-      if (a) {
+      if (run(copy, ov, i, acc)) {
         break;
       }
     }
